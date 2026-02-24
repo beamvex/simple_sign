@@ -1,6 +1,12 @@
 use base_xx::SerialiseError;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct MetaData {
+    ord: u8,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 /// Supported signature algorithms.
 pub enum SigningAlgorithm {
     /// Ed25519 Edwards-curve signature scheme.
@@ -9,6 +15,24 @@ pub enum SigningAlgorithm {
     RSA,
     /// ECDSA signature scheme.
     ECDSA,
+}
+
+impl SigningAlgorithm {
+    #[must_use]
+    #[allow(missing_docs)]
+    pub const fn metadata(self) -> MetaData {
+        match self {
+            Self::ED25519 => MetaData { ord: 100 },
+            Self::RSA => MetaData { ord: 101 },
+            Self::ECDSA => MetaData { ord: 102 },
+        }
+    }
+
+    #[must_use]
+    #[allow(missing_docs)]
+    pub const fn ord(self) -> u8 {
+        self.metadata().ord
+    }
 }
 
 impl TryFrom<u8> for SigningAlgorithm {
