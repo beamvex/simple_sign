@@ -13,5 +13,13 @@ pub mod signature;
 /// Supported signing algorithms and associated metadata.
 pub mod signing_algorithm;
 
+/// Signing interface.
+pub mod signer;
+
+/// Signature error types.
+pub mod signature_error;
+
 pub use signature::Signature;
+pub use signature_error::SignatureError;
+pub use signer::Signer;
 pub use signing_algorithm::SigningAlgorithm;
