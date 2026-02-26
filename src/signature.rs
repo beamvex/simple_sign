@@ -3,6 +3,7 @@ use base_xx::{ByteVec, SerialiseError, byte_vec::Encodable};
 use crate::signing_algorithm::SigningAlgorithm;
 
 /// A cryptographic signature along with its associated signing algorithm.
+#[derive(Debug)]
 pub struct Signature {
     algorithm: SigningAlgorithm,
     signature: Vec<u8>,

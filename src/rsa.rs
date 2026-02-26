@@ -1,5 +1,8 @@
 use base_xx::{ByteVec, byte_vec::Encodable};
 use rand_core::OsRng;
+use rsa::Pkcs1v15Sign;
+use slahasher::Hash;
+use slahasher::HashAlgorithm;
 
 use crate::Signature;
 use crate::SignatureError;
@@ -49,8 +52,27 @@ impl Default for RsaSigner {
 
 impl Signer for RsaSigner {
     /// Signs `data` and returns the resulting signature.
-    fn sign(&self, _data: &[u8]) -> Result<Signature, SignatureError> {
-        unimplemented!()
+    fn sign(&self, data: &[u8]) -> Result<Signature, SignatureError> {
+        let bytes = Test::new(data.to_vec());
+        match ByteVec::try_from(&bytes) {
+            Ok(bytes) => {
+                let hash = Hash::try_hash(&bytes, HashAlgorithm::KECCAK512);
+                match hash {
+                    Ok(hash) => {
+                        let signresult = self
+                            .private_key
+                            .sign(Pkcs1v15Sign::new_unprefixed(), hash.get_bytes());
+
+                        match signresult {
+                            Ok(signature) => Ok(Signature::new(signature)),
+                            Err(e) => Err(SignatureError::new(e.to_string())),
+                        }
+                    }
+                    Err(e) => Err(SignatureError::new(e.to_string())),
+                }
+            }
+            Err(e) => Err(SignatureError::new(e.to_string())),
+        }
     }
 }
 
@@ -93,17 +115,32 @@ mod tests {
     use super::*;
     use base_xx::Encoding;
     use rand::rngs::OsRng;
-    use rsa::RsaPrivateKey;
     use rsa::pkcs1::EncodeRsaPrivateKey;
     use rsa::pkcs1v15::Pkcs1v15Sign;
     use rsa::pkcs8::LineEnding;
     use rsa::traits::PublicKeyParts;
+    use rsa::{RsaPrivateKey, signature};
     use sha2::{Digest, Sha256};
 
     use slogger::debug;
 
     #[test]
     fn test_rsa() {
+        let signer = RsaSigner::new_with_size(2048);
+
+        let data = b"test";
+        let signature = signer.sign(data);
+
+        match signature {
+            Ok(signature) => {
+                debug!("signature {signature:?}");
+            }
+            Err(e) => {
+                debug!("failed to sign data: {e}");
+            }
+        }
+
+        /*
         let mut rng = OsRng;
         match RsaPrivateKey::new(&mut rng, 256) {
             Ok(private_key) => {
@@ -160,5 +197,6 @@ mod tests {
                 debug!("failed to generate RSA key: {e}");
             }
         }
+        */
     }
 }

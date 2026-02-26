@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 /// Error type for signature operations.
 #[derive(Debug)]
 pub struct SignatureError {
@@ -27,5 +29,11 @@ impl SignatureError {
     #[must_use]
     pub fn message(&self) -> &str {
         &self.message
+    }
+}
+
+impl Display for SignatureError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
     }
 }
