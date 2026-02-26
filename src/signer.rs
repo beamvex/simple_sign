@@ -9,5 +9,5 @@ pub trait Signer {
     /// # Errors
     ///
     /// Returns an error if the signing operation fails.
-    fn sign(data: &[u8]) -> Result<Signature, SignatureError>;
+    fn sign(&self, data: &[u8]) -> Result<Signature, SignatureError>;
 }

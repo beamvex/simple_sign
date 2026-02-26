@@ -1,4 +1,58 @@
 use base_xx::{ByteVec, byte_vec::Encodable};
+use rand_core::OsRng;
+
+use crate::Signature;
+use crate::SignatureError;
+use crate::Signer;
+
+/// An RSA signer.
+pub struct RsaSigner {
+    private_key: rsa::RsaPrivateKey,
+}
+
+impl RsaSigner {
+    /// Creates a new `RsaSigner` from an existing RSA private key.
+    #[must_use]
+    pub const fn new(private_key: rsa::RsaPrivateKey) -> Self {
+        Self { private_key }
+    }
+
+    /// Returns a reference to the RSA private key held by this signer.
+    #[must_use]
+    pub const fn get_private_key(&self) -> &rsa::RsaPrivateKey {
+        &self.private_key
+    }
+
+    /// Returns the corresponding RSA public key.
+    #[must_use]
+    pub fn get_public_key(&self) -> rsa::RsaPublicKey {
+        self.private_key.to_public_key()
+    }
+
+    /// Generates a new RSA private key with the given size (in bits) and returns a signer.
+    pub fn new_with_size(bit_size: usize) -> Self {
+        Self {
+            private_key: rsa::RsaPrivateKey::new(&mut OsRng, bit_size)
+                .unwrap_or_else(|_| unreachable!()),
+        }
+    }
+}
+
+impl Default for RsaSigner {
+    /// Creates a default `RsaSigner`.
+    ///
+    /// Currently this generates a new RSA key with a default size.
+    fn default() -> Self {
+        Self::new_with_size(256)
+    }
+}
+
+impl Signer for RsaSigner {
+    /// Signs `data` and returns the resulting signature.
+    fn sign(&self, _data: &[u8]) -> Result<Signature, SignatureError> {
+        unimplemented!()
+    }
+}
 
 /// A test struct for serialisation.
 pub struct Test {
