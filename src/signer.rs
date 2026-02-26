@@ -1,3 +1,5 @@
+use slahasher::Hash;
+
 use crate::{Signature, SignatureError};
 
 /// Trait for signing data.
@@ -9,5 +11,5 @@ pub trait Signer {
     /// # Errors
     ///
     /// Returns an error if the signing operation fails.
-    fn sign(&self, data: &[u8]) -> Result<Signature, SignatureError>;
+    fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError>;
 }
