@@ -1,4 +1,3 @@
-use base_xx::{ByteVec, byte_vec::Encodable};
 use k256::ecdsa;
 use k256::ecdsa::signature::Signer as _;
 use rand_core::OsRng;
@@ -60,43 +59,10 @@ impl Signer for Secp256k1Signer {
     }
 }
 
-/// A test struct for serialisation.
-pub struct Test {
-    data: Vec<u8>,
-}
-
-impl Test {
-    /// Creates a new Test instance from raw data.
-    #[must_use]
-    pub const fn new(data: Vec<u8>) -> Self {
-        Self { data }
-    }
-}
-
-impl TryFrom<ByteVec> for Test {
-    type Error = base_xx::SerialiseError;
-
-    fn try_from(value: ByteVec) -> Result<Self, Self::Error> {
-        Ok(Self {
-            data: value.get_bytes().to_vec(),
-        })
-    }
-}
-
-impl TryFrom<&Test> for ByteVec {
-    type Error = base_xx::SerialiseError;
-
-    fn try_from(value: &Test) -> Result<Self, Self::Error> {
-        Ok(Self::new(value.data.clone()))
-    }
-}
-
-impl Encodable for Test {}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use base_xx::{ByteVec, EncodedString, Encoding};
+    use base_xx::{ByteVec, EncodedString, Encoding, byte_vec::Encodable};
     use slahasher::HashAlgorithm;
     use slogger::debug;
 

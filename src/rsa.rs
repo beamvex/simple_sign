@@ -1,4 +1,3 @@
-use base_xx::{ByteVec, byte_vec::Encodable};
 use rand_core::OsRng;
 use rsa::Pkcs1v15Sign;
 use slahasher::Hash;
@@ -6,6 +5,7 @@ use slahasher::Hash;
 use crate::Signature;
 use crate::SignatureError;
 use crate::Signer;
+use crate::SigningAlgorithm;
 
 /// An RSA signer.
 pub struct RsaSigner {
@@ -57,50 +57,21 @@ impl Signer for RsaSigner {
             .sign(Pkcs1v15Sign::new_unprefixed(), hash.get_bytes());
 
         match signresult {
-            Ok(signature) => Ok(Signature::new(signature)),
+            Ok(signature) => Ok(Signature::new_with_algorithm(
+                SigningAlgorithm::RSA,
+                signature,
+            )),
             Err(e) => Err(SignatureError::new(e.to_string())),
         }
     }
 }
-
-/// A test struct for serialisation.
-pub struct Test {
-    data: Vec<u8>,
-}
-
-impl Test {
-    /// Creates a new Test instance from raw data.
-    #[must_use]
-    pub const fn new(data: Vec<u8>) -> Self {
-        Self { data }
-    }
-}
-
-impl TryFrom<ByteVec> for Test {
-    type Error = base_xx::SerialiseError;
-
-    fn try_from(value: ByteVec) -> Result<Self, Self::Error> {
-        Ok(Self {
-            data: value.get_bytes().to_vec(),
-        })
-    }
-}
-
-impl TryFrom<&Test> for ByteVec {
-    type Error = base_xx::SerialiseError;
-
-    fn try_from(value: &Test) -> Result<Self, Self::Error> {
-        Ok(Self::new(value.data.clone()))
-    }
-}
-
-impl Encodable for Test {}
 
 #[cfg(test)]
 mod tests {
 
     use super::*;
 
+    use base_xx::ByteVec;
     use slahasher::HashAlgorithm;
     use slogger::debug;
 
