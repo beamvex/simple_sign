@@ -7,6 +7,12 @@
 /// RSA cryptographic primitives used by this crate.
 pub mod rsa;
 
+/// Secp256k1 (ECDSA) signing primitives used by this crate.
+pub mod secp256k1;
+
+/// Ed25519 signing primitives used by this crate.
+pub mod ed25519;
+
 /// Signing/verification types and helpers.
 pub mod signature;
 

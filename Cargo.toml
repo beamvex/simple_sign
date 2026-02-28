@@ -17,6 +17,7 @@ allow-expect-in-tests = "allow"
 slahasher = "0.3.0"
 base_xx = "0.6.2"
 rsa = "0.9.6"
+k256 = { version = "0.13", features = ["ecdsa"] }
 digest = "0.10.7"
 sha2 = "0.10.8"
 sha3 = "0.10.8"
