@@ -1,12 +1,13 @@
 [package]
 name = "simple_sign"
 description = "Simple signing library"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/beamvex/simple_sign"
 keywords = ["signing", "crypto", "ed25519", "rsa"]
 categories = ["cryptography"]
+documentation = "https://docs.rs/simple_sign"
 
 [lints.clippy]
 unwrap_used = "deny"
