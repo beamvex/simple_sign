@@ -25,6 +25,9 @@ pub mod signer;
 /// Signature error types.
 pub mod signature_error;
 
+pub use ed25519::Ed25519Signer;
+pub use rsa::RsaSigner;
+pub use secp256k1::Secp256k1Signer;
 pub use signature::Signature;
 pub use signature_error::SignatureError;
 pub use signer::Signer;
