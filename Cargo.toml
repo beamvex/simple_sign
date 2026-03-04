@@ -1,7 +1,7 @@
 [package]
 name = "simple_sign"
 description = "Simple signing library"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/beamvex/simple_sign"
@@ -15,8 +15,8 @@ expect_used = "deny"
 allow-expect-in-tests = "allow"
 
 [dependencies]
-slahasher = "0.3.0"
-base_xx = "0.6.2"
+slahasher = "0.3.12"
+base_xx = "0.7.0"
 rsa = "0.9.6"
 k256 = { version = "0.13", features = ["ecdsa"] }
 digest = "0.10.7"

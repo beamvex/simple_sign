@@ -31,9 +31,9 @@ checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 
 [[package]]
 name = "base_xx"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2147e47cc93db2be1fc0f483fdb55c0fa2c0f6dc25e1dce8348f8cc5b823af45"
+checksum = "dfe9b77e87fd791e782bb3832588f6d7f3f356649c9c3593df58b678ab8d05ec"
 dependencies = [
  "chrono",
  "slogger",
@@ -719,7 +719,7 @@ dependencies = [
 
 [[package]]
 name = "simple_sign"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "base_xx",
  "chrono",
@@ -737,9 +737,9 @@ dependencies = [
 
 [[package]]
 name = "slahasher"
-version = "0.3.0"
+version = "0.3.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "780da0386960c1ea83a34e592334a4d5b326df7ff1b66bd6eed99d7d4b7a1d51"
+checksum = "8ba8fa96e3cb0243a80dc703dc4a108c13e55c79fc5b21f0b47c17f8d57d8c1b"
 dependencies = [
  "base_xx",
  "chrono",
