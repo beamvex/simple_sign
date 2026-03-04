@@ -1,3 +1,4 @@
+use base_xx::ByteVec;
 use ed25519_dalek::Signer as _;
 use rand_core::OsRng;
 use slahasher::Hash;
@@ -53,7 +54,7 @@ impl Signer for Ed25519Signer {
         let signature: ed25519_dalek::Signature = self.signing_key.sign(hash.get_bytes());
         Ok(Signature::new_with_algorithm(
             SigningAlgorithm::ED25519,
-            signature.to_bytes().to_vec(),
+            ByteVec::new(signature.to_bytes().to_vec()),
         ))
     }
 }
@@ -79,6 +80,6 @@ mod tests {
             .unwrap_or_else(|_| EncodedString::new(Encoding::Base58, String::new()));
         debug!("signature {serialised}");
         assert_eq!(signature.get_algorithm(), SigningAlgorithm::ED25519);
-        assert_eq!(signature.get_signature().len(), 64);
+        assert_eq!(signature.get_signature().get_bytes().len(), 64);
     }
 }

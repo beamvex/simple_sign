@@ -1,3 +1,4 @@
+use base_xx::ByteVec;
 use k256::ecdsa;
 use k256::ecdsa::signature::Signer as _;
 use rand_core::OsRng;
@@ -54,7 +55,7 @@ impl Signer for Secp256k1Signer {
         let signature: ecdsa::Signature = self.signing_key.sign(hash.get_bytes());
         Ok(Signature::new_with_algorithm(
             SigningAlgorithm::ECDSA,
-            signature.to_bytes().to_vec(),
+            ByteVec::new(signature.to_bytes().to_vec()),
         ))
     }
 }
@@ -80,6 +81,6 @@ mod tests {
             .unwrap_or_else(|_| EncodedString::new(Encoding::Base58, String::new()));
         debug!("signature {serialised}");
         assert_eq!(signature.get_algorithm(), SigningAlgorithm::ECDSA);
-        assert_eq!(signature.get_signature().len(), 64);
+        assert_eq!(signature.get_signature().get_bytes().len(), 64);
     }
 }

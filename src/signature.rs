@@ -1,4 +1,6 @@
-use base_xx::{ByteVec, SerialiseError, byte_vec::Encodable};
+use std::fmt::Debug;
+
+use base_xx::{ByteVec, SerialiseError, byte_vec::Encodable, encoded_string::Decodable};
 
 use crate::signing_algorithm::SigningAlgorithm;
 
@@ -6,14 +8,14 @@ use crate::signing_algorithm::SigningAlgorithm;
 #[derive(Debug)]
 pub struct Signature {
     algorithm: SigningAlgorithm,
-    signature: Vec<u8>,
+    signature: ByteVec,
 }
 
 impl Default for Signature {
     fn default() -> Self {
         Self {
             algorithm: SigningAlgorithm::ED25519,
-            signature: vec![0u8; 64],
+            signature: ByteVec::new(vec![0u8; 64]),
         }
     }
 }
@@ -21,7 +23,7 @@ impl Default for Signature {
 impl Signature {
     #[must_use]
     /// Creates a new Ed25519 signature wrapper from raw signature bytes.
-    pub const fn new(signature: Vec<u8>) -> Self {
+    pub const fn new(signature: ByteVec) -> Self {
         Self {
             algorithm: SigningAlgorithm::ED25519,
             signature,
@@ -30,7 +32,7 @@ impl Signature {
 
     #[must_use]
     /// Creates a new signature wrapper from raw signature bytes and an explicit algorithm.
-    pub const fn new_with_algorithm(algorithm: SigningAlgorithm, signature: Vec<u8>) -> Self {
+    pub const fn new_with_algorithm(algorithm: SigningAlgorithm, signature: ByteVec) -> Self {
         Self {
             algorithm,
             signature,
@@ -39,7 +41,7 @@ impl Signature {
 
     #[must_use]
     /// Returns the raw signature bytes.
-    pub const fn get_signature(&self) -> &Vec<u8> {
+    pub const fn get_signature(&self) -> &ByteVec {
         &self.signature
     }
 
@@ -55,7 +57,7 @@ impl TryFrom<&Signature> for ByteVec {
     fn try_from(value: &Signature) -> Result<Self, Self::Error> {
         let algorithm: u8 = value.get_algorithm().into();
         let mut bytes = vec![algorithm];
-        bytes.extend_from_slice(value.get_signature());
+        bytes.extend_from_slice(value.get_signature().get_bytes());
         Ok(Self::new(bytes))
     }
 }
@@ -66,7 +68,7 @@ impl TryFrom<ByteVec> for Signature {
         match SigningAlgorithm::try_from(value.get_bytes()[0]) {
             Ok(algorithm) => {
                 let bytes = value.get_bytes()[1..].to_vec();
-                Ok(Self::new_with_algorithm(algorithm, bytes))
+                Ok(Self::new_with_algorithm(algorithm, ByteVec::new(bytes)))
             }
             Err(e) => Err(e),
         }
@@ -74,3 +76,4 @@ impl TryFrom<ByteVec> for Signature {
 }
 
 impl Encodable for Signature {}
+impl Decodable for Signature {}

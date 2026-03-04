@@ -1,3 +1,4 @@
+use base_xx::ByteVec;
 use rand_core::OsRng;
 use rsa::Pkcs1v15Sign;
 use slahasher::Hash;
@@ -59,7 +60,7 @@ impl Signer for RsaSigner {
         match signresult {
             Ok(signature) => Ok(Signature::new_with_algorithm(
                 SigningAlgorithm::RSA,
-                signature,
+                ByteVec::new(signature),
             )),
             Err(e) => Err(SignatureError::new(e.to_string())),
         }
