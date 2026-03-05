@@ -1,7 +1,7 @@
 [package]
 name = "simple_sign"
 description = "Simple signing library"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/beamvex/simple_sign"
@@ -12,11 +12,11 @@ documentation = "https://docs.rs/simple_sign"
 [lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"
-allow-expect-in-tests = "allow"
+allow_expect_in_tests = "allow"
 
 [dependencies]
-slahasher = "0.3.12"
-base_xx = "0.7.0"
+slahasher = "0.3.13"
+base_xx = "0.7.1"
 rsa = "0.9.6"
 k256 = { version = "0.13", features = ["ecdsa"] }
 digest = "0.10.7"

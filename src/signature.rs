@@ -5,7 +5,7 @@ use base_xx::{ByteVec, SerialiseError, byte_vec::Encodable, encoded_string::Deco
 use crate::signing_algorithm::SigningAlgorithm;
 
 /// A cryptographic signature along with its associated signing algorithm.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Signature {
     algorithm: SigningAlgorithm,
     signature: ByteVec,

@@ -14,7 +14,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-simple_sign = "0.1.2"
+simple_sign = "0.1.3"
 ```
 
 ## Usage

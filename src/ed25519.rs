@@ -51,7 +51,8 @@ impl Default for Ed25519Signer {
 impl Signer for Ed25519Signer {
     /// Signs the provided hash and returns the resulting signature.
     fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError> {
-        let signature: ed25519_dalek::Signature = self.signing_key.sign(hash.get_bytes());
+        let signature: ed25519_dalek::Signature =
+            self.signing_key.sign(hash.get_bytes().get_bytes());
         Ok(Signature::new_with_algorithm(
             SigningAlgorithm::ED25519,
             ByteVec::new(signature.to_bytes().to_vec()),

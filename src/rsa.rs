@@ -55,7 +55,7 @@ impl Signer for RsaSigner {
     fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError> {
         let signresult = self
             .private_key
-            .sign(Pkcs1v15Sign::new_unprefixed(), hash.get_bytes());
+            .sign(Pkcs1v15Sign::new_unprefixed(), hash.get_bytes().get_bytes());
 
         match signresult {
             Ok(signature) => Ok(Signature::new_with_algorithm(

@@ -1,12 +1,12 @@
 use base_xx::SerialiseError;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 #[allow(missing_docs)]
 pub struct MetaData {
     ord: u8,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 /// Supported signature algorithms.
 pub enum SigningAlgorithm {
     /// Ed25519 Edwards-curve signature scheme.

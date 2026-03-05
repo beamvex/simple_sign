@@ -52,7 +52,7 @@ impl Default for Secp256k1Signer {
 impl Signer for Secp256k1Signer {
     /// Signs the provided hash and returns the resulting signature.
     fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError> {
-        let signature: ecdsa::Signature = self.signing_key.sign(hash.get_bytes());
+        let signature: ecdsa::Signature = self.signing_key.sign(hash.get_bytes().get_bytes());
         Ok(Signature::new_with_algorithm(
             SigningAlgorithm::ECDSA,
             ByteVec::new(signature.to_bytes().to_vec()),
