@@ -14,7 +14,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-simple_sign = "0.1.3"
+simple_sign = "0.2.0"
 ```
 
 ## Usage
@@ -22,28 +22,36 @@ simple_sign = "0.1.3"
 Basic construction and inspection:
 
 ```rust
+use std::sync::Arc;
+
+use base_xx::ByteVec;
 use simple_sign::{Signature, SigningAlgorithm};
 
-let sig = Signature::new_with_algorithm(SigningAlgorithm::ED25519, vec![0u8; 64]);
+let sig = Signature::new_with_algorithm(
+    SigningAlgorithm::ED25519,
+    Arc::new(ByteVec::new(Arc::new(vec![0u8; 64]))),
+);
 assert_eq!(sig.get_algorithm(), SigningAlgorithm::ED25519);
-let _bytes: &Vec<u8> = sig.get_signature();
+let _bytes = sig.get_signature();
 ```
 
 Signing a hash:
 
 ```rust
+use std::sync::Arc;
+
 use base_xx::ByteVec;
 use simple_sign::{Ed25519Signer, Signer};
 use slahasher::{Hash, HashAlgorithm};
 
-let signer = Ed25519Signer::default();
+let signer = Arc::new(Ed25519Signer::default());
 
 let data = b"hello";
-let bytes = ByteVec::new(data.to_vec());
-let hash = Hash::try_hash(&bytes, HashAlgorithm::KECCAK512).unwrap();
+let bytes = Arc::new(ByteVec::new(Arc::new(data.to_vec())));
+let hash = Hash::try_hash(Arc::clone(&bytes), HashAlgorithm::KECCAK512).unwrap();
 
-let signature = signer.sign(&hash).unwrap();
-assert_eq!(signature.get_signature().len(), 64);
+let signature = signer.sign(hash).unwrap();
+assert_eq!(signature.get_signature().get_bytes().len(), 64);
 ```
 
 Serialisation helpers are implemented via `base_xx`’s `Encodable` trait (see `Signature`’s `TryFrom` implementations in `src/signature.rs`).

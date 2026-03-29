@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use base_xx::ByteVec;
 use rand_core::OsRng;
 use rsa::Pkcs1v15Sign;
@@ -51,17 +53,17 @@ impl Default for RsaSigner {
 }
 
 impl Signer for RsaSigner {
-    /// Signs `data` and returns the resulting signature.
-    fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError> {
+    /// Signs the provided hash and returns the resulting signature.
+    fn sign(self: Arc<Self>, hash: Arc<Hash>) -> Result<Arc<Signature>, SignatureError> {
         let signresult = self
             .private_key
             .sign(Pkcs1v15Sign::new_unprefixed(), hash.get_bytes().get_bytes());
 
         match signresult {
-            Ok(signature) => Ok(Signature::new_with_algorithm(
+            Ok(signature) => Ok(Arc::new(Signature::new_with_algorithm(
                 SigningAlgorithm::RSA,
-                ByteVec::new(signature),
-            )),
+                Arc::new(ByteVec::new(Arc::new(signature))),
+            ))),
             Err(e) => Err(SignatureError::new(e.to_string())),
         }
     }
@@ -72,7 +74,7 @@ mod tests {
 
     use super::*;
 
-    use base_xx::ByteVec;
+    use base_xx::{ByteVec, EncodedString, Encoding, byte_vec::Encodable};
     use slahasher::HashAlgorithm;
     use slogger::debug;
 
@@ -81,83 +83,16 @@ mod tests {
         let signer = RsaSigner::new_with_size(1024);
 
         let data = b"test";
-        let bytes = ByteVec::new(data.to_vec());
-        let hash = Hash::try_hash(&bytes, HashAlgorithm::KECCAK512);
-        match hash {
-            Ok(hash) => {
-                let signature = signer.sign(&hash);
+        let bytes = Arc::new(ByteVec::new(Arc::new(data.to_vec())));
+        let hash = Hash::try_hash(Arc::clone(&bytes), HashAlgorithm::KECCAK512)
+            .unwrap_or_else(|_| unreachable!());
 
-                match signature {
-                    Ok(signature) => {
-                        debug!("signature {signature:?}");
-                    }
-                    Err(e) => {
-                        debug!("failed to sign data: {e}");
-                    }
-                }
-            }
-            Err(e) => {
-                debug!("failed to hash data: {e}");
-            }
-        }
-
-        /*
-        let mut rng = OsRng;
-        match RsaPrivateKey::new(&mut rng, 256) {
-            Ok(private_key) => {
-                assert_eq!(private_key.n().bits(), 256);
-
-                match private_key.to_pkcs1_pem(LineEnding::LF) {
-                    Ok(pem) => {
-                        let pem = pem.as_str();
-                        debug!("pem {pem}");
-                    }
-                    Err(e) => {
-                        debug!("failed to generate RSA key: {e}");
-                    }
-                }
-
-                let _n = private_key.n();
-                let _e = private_key.e();
-
-                let test = b"test";
-                let digest = Sha256::digest(test);
-                let signresult =
-                    private_key.sign(Pkcs1v15Sign::new_unprefixed(), digest.as_slice());
-
-                match signresult {
-                    Ok(signature) => {
-                        let bytes = Test::new(signature);
-                        match bytes.try_encode(Encoding::Base36) {
-                            Ok(encoded) => {
-                                debug!("signature {encoded}");
-                            }
-                            Err(e) => {
-                                debug!("failed to encode signature: {e}");
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        debug!("signing failed: {e}");
-                    }
-                }
-
-                let public_key = private_key.to_public_key();
-                let n = public_key.n().to_bytes_be();
-                let bytes = Test::new(n);
-                match bytes.try_encode(Encoding::Base36) {
-                    Ok(encoded) => {
-                        debug!("n {encoded}");
-                    }
-                    Err(e) => {
-                        debug!("failed to encode n: {e}");
-                    }
-                }
-            }
-            Err(e) => {
-                debug!("failed to generate RSA key: {e}");
-            }
-        }
-        */
+        let signature = RsaSigner::sign(Arc::new(signer), hash).unwrap_or_else(|_| unreachable!());
+        let serialised = Arc::clone(&signature)
+            .try_encode(Encoding::Base58)
+            .unwrap_or_else(|_| EncodedString::new(Encoding::Base58, String::new()));
+        debug!("signature {serialised}");
+        assert_eq!(signature.get_algorithm(), SigningAlgorithm::RSA);
+        assert_eq!(signature.get_signature().get_bytes().len(), 128);
     }
 }

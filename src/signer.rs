@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use slahasher::Hash;
 
 use crate::{Signature, SignatureError};
@@ -11,5 +13,5 @@ pub trait Signer {
     /// # Errors
     ///
     /// Returns an error if the signing operation fails.
-    fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError>;
+    fn sign(self: Arc<Self>, hash: Arc<Hash>) -> Result<Arc<Signature>, SignatureError>;
 }

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use base_xx::ByteVec;
 use k256::ecdsa;
 use k256::ecdsa::signature::Signer as _;
@@ -51,12 +53,12 @@ impl Default for Secp256k1Signer {
 
 impl Signer for Secp256k1Signer {
     /// Signs the provided hash and returns the resulting signature.
-    fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError> {
+    fn sign(self: Arc<Self>, hash: Arc<Hash>) -> Result<Arc<Signature>, SignatureError> {
         let signature: ecdsa::Signature = self.signing_key.sign(hash.get_bytes().get_bytes());
-        Ok(Signature::new_with_algorithm(
+        Ok(Arc::new(Signature::new_with_algorithm(
             SigningAlgorithm::ECDSA,
-            ByteVec::new(signature.to_bytes().to_vec()),
-        ))
+            Arc::new(ByteVec::new(Arc::new(signature.to_bytes().to_vec()))),
+        )))
     }
 }
 
@@ -71,12 +73,13 @@ mod tests {
     fn test_secp256k1_sign() {
         let signer = Secp256k1Signer::default();
         let data = b"test";
-        let bytes = ByteVec::new(data.to_vec());
-        let hash =
-            Hash::try_hash(&bytes, HashAlgorithm::KECCAK512).unwrap_or_else(|_| unreachable!());
+        let bytes = Arc::new(ByteVec::new(Arc::new(data.to_vec())));
+        let hash = Hash::try_hash(Arc::clone(&bytes), HashAlgorithm::KECCAK512)
+            .unwrap_or_else(|_| unreachable!());
 
-        let signature = signer.sign(&hash).unwrap_or_else(|_| unreachable!());
-        let serialised = signature
+        let signature =
+            Secp256k1Signer::sign(Arc::new(signer), hash).unwrap_or_else(|_| unreachable!());
+        let serialised = Arc::clone(&signature)
             .try_encode(Encoding::Base58)
             .unwrap_or_else(|_| EncodedString::new(Encoding::Base58, String::new()));
         debug!("signature {serialised}");

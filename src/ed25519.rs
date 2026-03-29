@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use base_xx::ByteVec;
 use ed25519_dalek::Signer as _;
 use rand_core::OsRng;
@@ -50,13 +52,13 @@ impl Default for Ed25519Signer {
 
 impl Signer for Ed25519Signer {
     /// Signs the provided hash and returns the resulting signature.
-    fn sign(&self, hash: &Hash) -> Result<Signature, SignatureError> {
+    fn sign(self: Arc<Self>, hash: Arc<Hash>) -> Result<Arc<Signature>, SignatureError> {
         let signature: ed25519_dalek::Signature =
             self.signing_key.sign(hash.get_bytes().get_bytes());
-        Ok(Signature::new_with_algorithm(
+        Ok(Arc::new(Signature::new_with_algorithm(
             SigningAlgorithm::ED25519,
-            ByteVec::new(signature.to_bytes().to_vec()),
-        ))
+            Arc::new(ByteVec::new(Arc::new(signature.to_bytes().to_vec()))),
+        )))
     }
 }
 
@@ -71,12 +73,13 @@ mod tests {
     fn test_ed25519_sign() {
         let signer = Ed25519Signer::default();
         let data = b"test";
-        let bytes = ByteVec::new(data.to_vec());
-        let hash =
-            Hash::try_hash(&bytes, HashAlgorithm::KECCAK512).unwrap_or_else(|_| unreachable!());
+        let bytes = ByteVec::new(Arc::new(data.to_vec()));
+        let hash = Hash::try_hash(Arc::new(bytes), HashAlgorithm::KECCAK512)
+            .unwrap_or_else(|_| unreachable!());
 
-        let signature = signer.sign(&hash).unwrap_or_else(|_| unreachable!());
-        let serialised = signature
+        let signature =
+            Ed25519Signer::sign(Arc::new(signer), hash).unwrap_or_else(|_| unreachable!());
+        let serialised = Arc::clone(&signature)
             .try_encode(Encoding::Base58)
             .unwrap_or_else(|_| EncodedString::new(Encoding::Base58, String::new()));
         debug!("signature {serialised}");
